@@ -210,7 +210,7 @@ public class Request extends Thread {
 			}
 
 		} catch (final XmlRpcException e) {
-			sendErrorMessage(e.getMessage(), "Unable to retrieve One-Click parameters.");
+			sendErrorMessage(e.getMessage(), e.getStackTrace().toString());
 			e.printStackTrace();
 			return;
 		} catch (final Exception e) {
@@ -219,15 +219,18 @@ public class Request extends Thread {
 			return;
 		}
 		try {
-			result = (HashMap<?, ?>)apiClient.execute("XMLRPCaddRequest", new Object[]{imageId+"", "now", duration+""});
+			result = (HashMap<?, ?>)apiClient.execute("XMLRPCaddRequest", new Object[]{imageId+"", "now", duration+"", oneClickId});
 			if(((String)result.get("status")).equals("success")) {
 				requestId = Integer.parseInt((String)result.get("requestid"));
+                           //     sendStateChange("oneclickreceived", "Inside success, Request id = " + requestId);
 			}
 			else if(((String)result.get("status")).equals("notavailable")) {
+                //             sendStateChange("oneclickreceived", "Dint go inside success");
 				sendErrorMessage("0", "No computers were available for the request.");
 				return;
 			}
 			else {
+                //             sendStateChange("oneclickreceived", "Dint go inside success");
 				sendErrorMessage((String)result.get("errorcode"), "Reservation request failed.");
 				return;
 			}
