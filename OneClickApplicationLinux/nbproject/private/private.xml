@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/App/Main.java</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/App/config</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/App/ui/frmRequest.java.bak</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/reservation/IRequestListener.java</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/reservation/Request.java</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/security/CredentialStore.java</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/security/Installation.java</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/src/edu/ncsu/vcl/OneClick/security/SimpleCrypto.java</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/nbproject/build-impl.xml</file>
-        <file>file:/home/parikshitdeshpande/Desktop/OneClickProject/OneButtonApplicationLinux/build.xml</file>
-    </open-files>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
 </project-private>

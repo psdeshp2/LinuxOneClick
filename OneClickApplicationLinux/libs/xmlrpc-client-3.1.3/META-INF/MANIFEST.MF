@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: jwi
+Build-Jdk: 1.6.0_17
+Extension-Name: org.apache.xmlrpc.client
+Implementation-Vendor: Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Implementation-Version: 3.1.3
+Specification-Title: XML-RPC
+Specification-Vendor: UserLand Software, Inc.
+Specification-Version: 2003-06-30
+
