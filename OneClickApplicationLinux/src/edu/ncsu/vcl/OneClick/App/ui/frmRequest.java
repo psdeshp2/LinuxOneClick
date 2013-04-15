@@ -6,37 +6,75 @@ package edu.ncsu.vcl.OneClick.App.ui;
 
 import edu.ncsu.vcl.OneClick.reservation.IRequestListener;
 import edu.ncsu.vcl.OneClick.reservation.Request;
+import edu.ncsu.vcl.OneClick.security.CredentialStore;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.swing.JOptionPane;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.XmlRpcRequest;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.client.XmlRpcClientException;
+import org.apache.xmlrpc.client.XmlRpcSunHttpTransport;
+import org.apache.xmlrpc.client.XmlRpcSunHttpTransportFactory;
+import org.apache.xmlrpc.client.XmlRpcTransport;
+import org.apache.xmlrpc.client.XmlRpcTransportFactory;
 
 /**
  *
  * @author hp
  */
 public class frmRequest extends javax.swing.JFrame implements IRequestListener {
-	Request request;
+    Request request;
+    XmlRpcClient apiClient;
     
     /**
      * Creates new form frmRequest
      */
     public frmRequest() {
         initComponents();
-		btnClose.setVisible(false);
+        initComponentsForExtendReservation();
+	
+        btnClose.setVisible(false);
     }
     
     private void startReservation() {
-		request = null;
-		request = new Request(this);
-		request.start();
-		progressBar.setVisible(true);
-		btnClose.setVisible(false);
-	}
+        request = null;
+	request = new Request(this);
+	request.start();
+	progressBar.setVisible(true);
+	btnClose.setVisible(false);
+    }
 
+    private void initComponentsForExtendReservation() {
+        jLabel1.setText("");
+        jLabel2.setVisible(false);
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "15 Min","30 Min","1 Hour","1 Hour 30 Min","2 Hour","2 Hour 30 Min","3 Hour" }));
+        jComboBox1.setVisible(false);
+        jButton1.setText("Submit");
+        jButton1.addActionListener(new java.awt.event.ActionListener(){
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jButton1.setVisible(false);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -50,6 +88,10 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
         jScrollPane1 = new javax.swing.JScrollPane();
         lblStatus = new javax.swing.JTextArea();
         btnClose = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("One-Click Application");
@@ -65,9 +107,9 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
 
         jScrollPane1.setBorder(null);
 
+        lblStatus.setEditable(false);
         lblStatus.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.background"));
         lblStatus.setColumns(20);
-        lblStatus.setEditable(false);
         lblStatus.setFont(progressBar.getFont());
         lblStatus.setLineWrap(true);
         lblStatus.setRows(1);
@@ -81,21 +123,48 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
             }
         });
 
+        jLabel1.setText("jLabel1");
+
+        jLabel2.setText("Extend Reservation By");
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jButton1.setText("jButton1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(70, 70, 70)
+                .addComponent(btnClose)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(progressBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)))
+                        .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(150, 150, 150)
-                        .addComponent(btnClose)))
-                .addContainerGap())
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(73, 73, 73))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                                        .addContainerGap())))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(41, 41, 41)
+                                .addComponent(jLabel2)
+                                .addGap(0, 0, Short.MAX_VALUE))))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(94, 94, 94))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -103,10 +172,19 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
                 .addContainerGap()
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnClose)
-                .addContainerGap())
+                .addGap(21, 21, 21))
         );
 
         pack();
@@ -120,121 +198,263 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
 		System.exit(0);
 	}//GEN-LAST:event_btnCloseActionPerformed
 
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClose;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea lblStatus;
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
 
+    //Invoked after Submitting Extend Reservation Request
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+            //implement transport factory
+        CredentialStore cs = new CredentialStore();
+        CredentialStore.Credentials creds = cs.getCredentials();
+        
+        final HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put("X-User", creds.getUser());
+        headers.put("X-Pass", creds.getPassword());
+        headers.put("X-OneClick", request.oneClickId);
+        headers.put("X-APIVERSION", "2");
+	
+        XmlRpcTransportFactory xmlRpcTransportFactory = new XmlRpcSunHttpTransportFactory(apiClient) {
+	@Override
+            public XmlRpcTransport getTransport() {
+                return new XmlRpcSunHttpTransport(apiClient) {
+                    @Override
+                    protected void initHttpHeaders(XmlRpcRequest pRequest) throws XmlRpcClientException {
+                        try {
+                            super.initHttpHeaders(pRequest);
+
+                            Set keys = headers.keySet();
+                            for(Iterator iter = keys.iterator(); iter.hasNext();) {
+                                String key = (String) iter.next();
+                                setRequestHeader(key, headers.get(key));
+                            }
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+            }
+        };
+    
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+		}
+            };
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            // Create empty HostnameVerifier
+            HostnameVerifier hv = new HostnameVerifier() {
+                @Override
+		public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+		}
+            };
+
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(hv);
+
+        }
+		
+        catch(Exception e) {
+            e.printStackTrace();
+	}
+		
+	apiClient = new XmlRpcClient();
+	XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+	config.setServerURL(request.uri);
+        config.setEnabledForExtensions(true);
+        config.setContentLengthOptional(false);
+        apiClient.setConfig(config);
+        apiClient.setTransportFactory(xmlRpcTransportFactory);
+                
+        int extend_time = 0;
+        String extend_by = jComboBox1.getSelectedItem().toString();
+        String[] extend_item = extend_by.split(" ");
+        
+        if (extend_item[1].equals("Hour")) {
+            extend_time = Integer.parseInt(extend_item[0]) * 60;
+            if ((extend_item.length > 2) && (extend_item[3].equals("Min")))
+                extend_time += Integer.parseInt(extend_item[2]);
+        }
+        
+        else if (extend_item[1].equals("Min"))
+            extend_time = Integer.parseInt(extend_item[0]);
+            
+        HashMap<?,?> result;
+        try {
+            result = (HashMap<?,?>)apiClient.execute("XMLRPCextendRequest" , new Object[]{request.requestId+"",extend_time+""});
+            String status = (String)result.get("status");
+                
+            if(status.equals("error")) {
+                jLabel1.setForeground(Color.red);
+                jLabel1.setText((String)result.get("errmsg"));
+            }
+                
+            else {
+                jLabel1.setForeground(Color.green);
+                jLabel1.setText("Reservation extended.");
+            }
+        }
+            
+        catch (final XmlRpcException e) {
+            //sendErrorMessage(e.getMessage(), "Problem getting the status of the reservation.");
+            e.printStackTrace();
+            return;
+	}
+    }
+  
     @Override
     public void reservationStateChanged(String newState, String message) {
         lblStatus.setText(message);
     }
 
     @Override
-    public void connectionParametersReceived(String osType, String serverIP, String user, String password, boolean autologin) {
-		progressBar.setVisible(false);
-		if(!autologin) {
-			lblStatus.setText("Your '" + osType + "' reservation is ready, but the One-Click is not configured to automatically connect. Please connect manually.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
-			return;
-		}
-		lblStatus.setText("Ready to connect. Automatically connecting to reservation.");	
-		try {
-			if(osType.equals("linux") || osType.equals("unix")) {
-				loadSSHClient(serverIP, user, password);
-			}
-			else if (osType.equals("windows")) {
-				loadRDPClient(serverIP, user, password);
-			}
-			else {
-				lblStatus.setText("OS type '" + osType + "' is not supported for automatic login. Please attempt to manually connect.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
-			}
-		}
-		catch(Exception e) {
-			lblStatus.setText("Unable to connect automatically to the '" + osType + "' reservation. Please attempt to manually connect.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
-		}
-		btnClose.setVisible(true);
+    public void connectionParametersReceived(String osType, String serverIP, String user, String password, boolean autologin, Request request) {
+        progressBar.setVisible(false);
+	if(!autologin) {
+            lblStatus.setText("Your '" + osType + "' reservation is ready, but the One-Click is not configured to automatically connect. Please connect manually.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
+            return;
+	}
+		
+        lblStatus.setText("Ready to connect. Automatically connecting to reservation.");	
+		
+        try {
+            if(osType.equals("linux") || osType.equals("unix")) {
+                loadSSHClient(serverIP, user, password);
+            }
+			
+            else if (osType.equals("windows")) {
+                loadRDPClient(serverIP, user, password);
+            }
+            else {
+                lblStatus.setText("OS type '" + osType + "' is not supported for automatic login. Please attempt to manually connect.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
+            }
+	}
+	
+        catch(Exception e) {
+            lblStatus.setText("Unable to connect automatically to the '" + osType + "' reservation. Please attempt to manually connect.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
+	}
+	
+        btnClose.setVisible(true);
+        jLabel2.setVisible(true);
+        jComboBox1.setVisible(true);
+        jButton1.setVisible(true);
+        this.request = request;
     }
 
     @Override
     public void errorReported(String errorCode, String errorMessage) {
-		if(errorCode.contains("Access denied")) {
-			lblStatus.setText("Stored credentials are invalid");
-			progressBar.setVisible(false);
-			dlgLogin login = new dlgLogin(null, true);
-			login.setVisible(true);
-			if(!login.wasSaved()) {
-				System.exit(0);
-			}
-			login = null;
-			startReservation();
-			return;
-		}
-		lblStatus.setText(errorMessage);
-		progressBar.setVisible(false);
-		btnClose.setVisible(true);
+        if(errorCode.contains("Access denied")) {
+            lblStatus.setText("Stored credentials are invalid");
+            progressBar.setVisible(false);
+            dlgLogin login = new dlgLogin(null, true);
+            login.setVisible(true);
+            
+            if(!login.wasSaved()) {
+		System.exit(0);
+            }
+            
+            login = null;
+            startReservation();
+            return;
+	}
+		
+        lblStatus.setText(errorMessage);
+	progressBar.setVisible(false);
+	btnClose.setVisible(true);
     }
 	
-	
     private void loadRDPClient(String host, String user, String password) throws IOException {
-		try {
-			Process p = Runtime.getRuntime().exec("which rdesktop");
-			InputStream lsOut = p.getInputStream();
-			InputStreamReader r = new InputStreamReader(lsOut);
-			BufferedReader in = new BufferedReader(r);
+        try {
+            Process p = Runtime.getRuntime().exec("which rdesktop");
+            InputStream lsOut = p.getInputStream();
+            InputStreamReader r = new InputStreamReader(lsOut);
+            BufferedReader in = new BufferedReader(r);
 			
-			String command = null;
-			command = in.readLine();
-			in.close();
-			r.close();
-			lsOut.close();
-			if(command==null || command.equals("")) {
-				throw new IOException("Unable to find rdesktop");
-			}
+            String command = null;
+            command = in.readLine();
+            in.close();
+            r.close();
+            lsOut.close();
+            
+            if(command==null || command.equals("")) {
+                throw new IOException("Unable to find rdesktop");
+            }
                     
-			ProcessBuilder pb = new ProcessBuilder(command, host, "-u", user, "-p", password);
-			pb.start();
+            ProcessBuilder pb = new ProcessBuilder(command, host, "-u", user, "-p", password);
+            pb.start();
 			
-		}
-		catch(IOException e) {
-			JOptionPane.showMessageDialog(this, "This reservation requires rdesktop to automatically connect, but it was not found on your system.\n\nPlease visit http://www.rdesktop.org/ for information on how to install it.", "Error", JOptionPane.ERROR_MESSAGE);
-			throw e;
-		}
+	}
+	
+        catch(IOException e) {
+            JOptionPane.showMessageDialog(this, "This reservation requires rdesktop to automatically connect, but it was not found on your system.\n\nPlease visit http://www.rdesktop.org/ for information on how to install it.", "Error", JOptionPane.ERROR_MESSAGE);
+            throw e;
+	}
     }
 
     private void loadSSHClient(String host, String user, String password) throws IOException {
-		try {
-			Process p = Runtime.getRuntime().exec("which expect");
-			InputStream lsOut = p.getInputStream();
-			InputStreamReader r = new InputStreamReader(lsOut);
-			BufferedReader in = new BufferedReader(r);
+        try {
+            Process p = Runtime.getRuntime().exec("which expect");
+            InputStream lsOut = p.getInputStream();
+            InputStreamReader r = new InputStreamReader(lsOut);
+            BufferedReader in = new BufferedReader(r);
 			
-			String ret = null;
-			ret = in.readLine();
-			in.close();
-			r.close();
-			lsOut.close();
-			if (ret==null || ret.equals("")) {
-			    throw new IOException("Unable to find rdesktop");
-			}
+            String ret = null;
+            ret = in.readLine();
+            in.close();
+            r.close();
+            lsOut.close();
+            
+            if (ret==null || ret.equals("")) {
+                throw new IOException("Unable to find rdesktop");
+            }
 
-			String command = "xterm";
-			String ssh = "ssh";
-			String expect = "expect";
-			String query = user+"@"+host;
-			ProcessBuilder pb = new ProcessBuilder(command, "-e", expect, "-c","spawn ssh "+query+";expect \"*?assword:*\";send -- \"yes\r\"; send -- \""+password+"\r\";interact;expect eof");
-			try {
-			    //pb.redirectInput().
-			    Thread.sleep(3000);
-			} catch (InterruptedException ex) {
-			}
-			p = pb.start();
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(this, "This reservation requires 'expect' to automatically connect, but it was not found on your system.\n\nPlease run sudo apt-get install expect", "Error", JOptionPane.ERROR_MESSAGE);
-			throw ex;
-		}
+            String command = "xterm";
+            String ssh = "ssh";
+            String expect = "expect";
+            String query = user+"@"+host;
+            ProcessBuilder pb = new ProcessBuilder(command, "-e", expect, "-c","spawn ssh "+query+";expect \"*?assword:*\";send -- \"yes\r\"; send -- \""+password+"\r\";interact;expect eof");
+	
+            try {
+                //pb.redirectInput().
+		Thread.sleep(3000);
+            } 
+            
+            catch (InterruptedException ex) {
+            }
+			
+            p = pb.start();
+		
+        } 
+        catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "This reservation requires 'expect' to automatically connect, but it was not found on your system.\n\nPlease run sudo apt-get install expect", "Error", JOptionPane.ERROR_MESSAGE);
+            throw ex;
+        }
 
     }
 }
