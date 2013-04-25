@@ -280,8 +280,21 @@ public class Request extends Thread {
                 }
 				
                 else if(status.equals("timedout")) {
-                    sendStateChange(status, "The VCL reservation timed out.");
-                    return;
+                    sendStateChange(status, "Connecting to a new reservation");
+                    HashMap<?, ?> end_req_result;
+                    end_req_result = (HashMap<?, ?>)apiClient.execute("XMLRPCendRequest", new Object[]{requestId+""});
+                    
+                    String end_req_status = (String)end_req_result.get("status");
+                    if (end_req_status.equals("error"))
+                    {
+                        sendErrorMessage("Error: ", (String)end_req_result.get("errormsg"));
+                        return;
+                    }
+                    else if (end_req_status.equals("success"))
+                    {
+                        run();
+                        return;
+                    }
 		}
 				
                 else if(status.equals("loading")) {
