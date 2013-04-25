@@ -218,7 +218,7 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
         final HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("X-User", creds.getUser());
         headers.put("X-Pass", creds.getPassword());
-        headers.put("X-OneClick", request.oneClickId);
+        headers.put("X-OneClick", request.oneClickID);
         headers.put("X-APIVERSION", "2");
 	
         XmlRpcTransportFactory xmlRpcTransportFactory = new XmlRpcSunHttpTransportFactory(apiClient) {

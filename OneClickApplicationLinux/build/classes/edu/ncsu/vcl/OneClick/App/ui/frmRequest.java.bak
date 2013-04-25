@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.ncsu.vcl.OneButton.App.ui;
+package edu.ncsu.vcl.OneClick.App.ui;
 
-import edu.ncsu.vcl.OneButton.reservation.IRequestListener;
-import edu.ncsu.vcl.OneButton.reservation.Request;
+import edu.ncsu.vcl.OneClick.reservation.IRequestListener;
+import edu.ncsu.vcl.OneClick.reservation.Request;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
         btnClose = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("One-Button Application");
+        setTitle("One-Click Application");
         setLocationByPlatform(true);
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -137,7 +137,7 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
     public void connectionParametersReceived(String osType, String serverIP, String user, String password, boolean autologin) {
 		progressBar.setVisible(false);
 		if(!autologin) {
-			lblStatus.setText("Your '" + osType + "' reservation is ready, but the One-Button is not configured to automatically connect. Please connect manually.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
+			lblStatus.setText("Your '" + osType + "' reservation is ready, but the One-Click is not configured to automatically connect. Please connect manually.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
 			return;
 		}
 		lblStatus.setText("Ready to connect. Automatically connecting to reservation.");	

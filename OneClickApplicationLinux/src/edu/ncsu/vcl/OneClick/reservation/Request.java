@@ -40,7 +40,7 @@ import org.apache.xmlrpc.client.XmlRpcTransportFactory;
 public class Request extends Thread {
     XmlRpcClient apiClient;
     IRequestListener listener;
-    public String oneClickId;
+    public String oneClickID;
     public URL uri;
     public int requestId;
 	
@@ -51,8 +51,8 @@ public class Request extends Thread {
     @Override
     public void run() {
         String vclURL = "";
-	oneClickId = "";
-	//Read configuration file for vclURL and oneClickId
+	oneClickID = "";
+	//Read configuration file for vclURL and oneClickID
 	/*final Properties props = new Properties();
 	props.load(stream);
 	vclURL = props.getProperty("vclURL");*/
@@ -91,11 +91,11 @@ public class Request extends Thread {
 		}
 				
                 else if(keyval[0].equals("oneClickID")) {
-                    oneClickId = keyval[1];
+                    oneClickID = keyval[1];
 		}
             }
 			
-            if(vclURL.equals("") || oneClickId.equals(""))
+            if(vclURL.equals("") || oneClickID.equals(""))
                 throw new Exception();
 			
             uri = new URL(vclURL);
@@ -115,7 +115,7 @@ public class Request extends Thread {
         final HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("X-User", creds.getUser());
         headers.put("X-Pass", creds.getPassword());
-        headers.put("X-OneClick", oneClickId);
+        headers.put("X-OneClick", oneClickID);
         headers.put("X-APIVERSION", "2");
         	
         //implement transport factory
@@ -197,7 +197,7 @@ public class Request extends Thread {
 	boolean autologin = false;
 	
         try {
-            result = (HashMap<?, ?>)apiClient.execute("XMLRPCgetOneClickParams", new Object[]{ oneClickId });
+            result = (HashMap<?, ?>)apiClient.execute("XMLRPCgetOneClickParams", new Object[]{ oneClickID });
 		
             if(((String)result.get("status")).equals("success")) {
                 imageId = (Integer)result.get("imageid");
@@ -236,7 +236,7 @@ public class Request extends Thread {
 	}
 		
         try {
-            result = (HashMap<?, ?>)apiClient.execute("XMLRPCaddRequest", new Object[]{imageId+"", "now", duration+"", oneClickId});
+            result = (HashMap<?, ?>)apiClient.execute("XMLRPCaddRequest", new Object[]{imageId+"", "now", duration+"", oneClickID});
             
             if(((String)result.get("status")).equals("success")) {
                 requestId = Integer.parseInt((String)result.get("requestid"));
