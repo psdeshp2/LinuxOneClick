@@ -42,26 +42,43 @@ import org.apache.xmlrpc.client.XmlRpcTransportFactory;
 public class frmRequest extends javax.swing.JFrame implements IRequestListener {
     Request request;
     XmlRpcClient apiClient;
-    
+    int connectFlag;
     /**
      * Creates new form frmRequest
      */
     public frmRequest() {
         initComponents();
         initComponentsForExtendReservation();
-	
+	initComponentsToConnectExistingReservation();
         btnClose.setVisible(false);
     }
     
     private void startReservation() {
         request = null;
 	request = new Request(this);
+        request.connectFlag = this.connectFlag;
 	request.start();
 	progressBar.setVisible(true);
 	btnClose.setVisible(false);
     }
+    
+    private void initComponentsToConnectExistingReservation() {
+        jLabel3.setText("Connect to existing reservation");
+        //jLabel3.setVisible(false);
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Connect", "New reservation"}));
+       // jComboBox2.setVisible(false);
+        jButton2.setText("Submit");
+        //jButton2.setVisible(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener(){
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        
+    }
 
     private void initComponentsForExtendReservation() {
+        
         jLabel1.setText("");
         jLabel2.setVisible(false);
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "15 Min","30 Min","1 Hour","1 Hour 30 Min","2 Hour","2 Hour 30 Min","3 Hour" }));
@@ -92,6 +109,9 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
         jLabel2 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jComboBox2 = new javax.swing.JComboBox();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("One-Click Application");
@@ -131,6 +151,17 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
 
         jButton1.setText("jButton1");
 
+        jLabel3.setText("Connect to existing reservation?");
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("jButton2");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -147,24 +178,27 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel3)
+                                .addContainerGap())
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(73, 73, 73))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                        .addContainerGap())))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(41, 41, 41)
-                                .addComponent(jLabel2)
-                                .addGap(0, 0, Short.MAX_VALUE))))))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(94, 94, 94))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addContainerGap())
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jButton2))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jButton1)
+                                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel2))
+                                        .addGap(13, 13, 13))))))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -174,42 +208,70 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel2)
+                        .addComponent(jScrollPane1)
+                        .addGap(47, 47, 47)
+                        .addComponent(btnClose)
+                        .addGap(21, 21, 21))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnClose)
-                .addGap(21, 21, 21))
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton1)
+                            .addComponent(jButton2))
+                        .addGap(11, 11, 11)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43))))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
 	private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-		startReservation();
+		//startReservation();
 	}//GEN-LAST:event_formWindowOpened
 
 	private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
 		System.exit(0);
 	}//GEN-LAST:event_btnCloseActionPerformed
 
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClose;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea lblStatus;
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
 
     //Invoked after Submitting Extend Reservation Request
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+        String connect = jComboBox2.getSelectedItem().toString();
+        int connectFlag = 0;
+        if(connect.equals("New reservation"))
+            connectFlag = 1;
+        jLabel3.setVisible(false);
+        jComboBox2.setVisible(false);
+        jButton2.setVisible(false);
+        this.connectFlag = connectFlag;
+        startReservation();
+    }
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
             //implement transport factory
         CredentialStore cs = new CredentialStore();
@@ -336,6 +398,11 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
     @Override
     public void connectionParametersReceived(String osType, String serverIP, String user, String password, boolean autologin, Request request) {
         progressBar.setVisible(false);
+        btnClose.setVisible(true);
+        jLabel2.setVisible(true);
+        jComboBox1.setVisible(true);
+        jButton1.setVisible(true);
+        this.request = request;
 	if(!autologin) {
             lblStatus.setText("Your '" + osType + "' reservation is ready, but the One-Click is not configured to automatically connect. Please connect manually.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
             return;
@@ -360,11 +427,6 @@ public class frmRequest extends javax.swing.JFrame implements IRequestListener {
             lblStatus.setText("Unable to connect automatically to the '" + osType + "' reservation. Please attempt to manually connect.\n\nHost: " + serverIP + "\nUser: " + user+ "\nPassword: " + password);
 	}
 	
-        btnClose.setVisible(true);
-        jLabel2.setVisible(true);
-        jComboBox1.setVisible(true);
-        jButton1.setVisible(true);
-        this.request = request;
     }
 
     @Override

@@ -43,6 +43,7 @@ public class Request extends Thread {
     public String oneClickId;
     public URL uri;
     public int requestId;
+    public int connectFlag;
 	
     public Request(IRequestListener listener) {
 	this.listener = listener;
@@ -208,6 +209,7 @@ public class Request extends Thread {
             }
 			
             else {
+                cs.clearCredentials();
 		int errorcode = (Integer)result.get("errorcode");
 		if (errorcode == 3)
                     sendErrorMessage(result.get("errorcode")+"", "Access Denied");
@@ -236,7 +238,7 @@ public class Request extends Thread {
 	}
 		
         try {
-            result = (HashMap<?, ?>)apiClient.execute("XMLRPCaddRequest", new Object[]{imageId+"", "now", duration+"", oneClickId});
+            result = (HashMap<?, ?>)apiClient.execute("XMLRPCaddRequest", new Object[]{imageId+"", "now", duration+"", oneClickId, this.connectFlag});
             
             if(((String)result.get("status")).equals("success")) {
                 requestId = Integer.parseInt((String)result.get("requestid"));
@@ -292,7 +294,7 @@ public class Request extends Thread {
                     }
                     else if (end_req_status.equals("success"))
                     {
-                        run();
+                        this.start();
                         return;
                     }
 		}
